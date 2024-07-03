@@ -316,7 +316,7 @@ void MostrarRazas(tRazaPtr &r){
     if(razas != NULL){
         cout<<"------------------------------------------------------\n";
         while(razas != NULL){
-            cout<<"   "<<num<<"."<<razas->nombre<<endl;
+            cout<<"   "<<num<<"."<<razas->nombre<<" ("<<razas->planeta<<")"<<endl;
             razas = razas->siguiente;
             num += 1;
         }
@@ -649,7 +649,7 @@ void MostrarPersonajes(tPersonajePtr &p){
     if(personajes != NULL){
         cout<<"------------------------------------------------------\n";
         while(personajes != NULL){
-            cout<<"   "<<num<<"."<<personajes->nombre<<endl;
+            cout<<"   "<<num<<"."<<personajes->nombre<<" ("<<personajes->raza<<")"<<endl;
             personajes = personajes->siguiente;
             num += 1;
         }
@@ -1679,15 +1679,18 @@ void Batalla(tPersonajePtr p1, string j1, tPersonajePtr &prs1, tPersonajePtr p2,
 
 //__________________LECTRUAS________________
 //---------------------------------------------Ambientes-------------------------------------------
-void AmbientesArchivo(const char* a, tAmbientePtr &amb) {
+/*void AmbientesArchivo(const char* a, tAmbientePtr &amb) {
     ifstream archivo(a);
     if (archivo.is_open()) {
         string nombre;
         tAmbientePtr actual = amb;
         tAmbientePtr ambi = new tAmbiente;
+        string num_ambientestr;
         int cantidad_ambientes;
         int cont=0; 
-        archivo >> cantidad_ambientes;
+        archivo >> num_ambientestr;
+        istringstream(num_ambientestr)>>cantidad_ambientes;
+
         while (cont<cantidad_ambientes) {
             archivo>>nombre;
             if (nombre.size()>2){
@@ -1695,30 +1698,64 @@ void AmbientesArchivo(const char* a, tAmbientePtr &amb) {
                 
                 ambi->siguiente = NULL;
 
-               /* while(actual->siguiente!=NULL){
+                /*while(actual->siguiente != NULL){
                     actual=actual->siguiente;
-                }*/
+                }
 
                 if (amb == NULL) {
                     amb = ambi;
                     //actual = ambi;
-                } else {
+                } 
+                else {
                     actual->siguiente = ambi;
                     //actual = ambi;
                 }
                 //actual=amb;
-                actual = ambi;
+
+                actual = amb;
+                cont+=1;   
                 //l+=1;
             }
-         cont++;   
-        }
 
+        }
+        
         archivo.close();
         cout<<"Los ambientes se han cargado con exito"<<endl;
     } 
     else {
         cout << "Los datos han sido corrompidos en ambientes" << endl;
     }
+}*/
+
+void AmbientesArchivo(const char* a, tAmbientePtr &amb) {
+  ifstream archivo(a);
+
+  if (archivo.is_open()) {
+    string nombre;
+    tAmbientePtr actual = NULL;
+
+    while (archivo >> nombre) {
+        if (nombre.size()>2){
+            tAmbientePtr ambi = new tAmbiente;
+            ambi->nombre = nombre;
+            ambi->siguiente = NULL;
+
+            if (amb == NULL) {
+                amb = ambi;
+            } else {
+                actual->siguiente = ambi;
+            }
+
+            actual = ambi;
+        }
+      
+    }
+
+    archivo.close();
+  } 
+  else {
+    cout << "Error al abrir el archivo" << endl;
+  }
 }
 
 //---------------------------------------------Accesorios---------------------------------------
@@ -1732,13 +1769,14 @@ void AccesoriosArchivo(const char*b, tAccesoriosPtr &acc){
         string energiastr;
         string contenedorstr;
         tAccesoriosPtr actual = acc;
-        tAccesoriosPtr acce = new tAccesorios;
+        tAccesoriosPtr acce;
         int cantidad_acc;
         int cont=0; 
         string aux; 
         getline(archivo, aux);
-        cantidad_acc = stoi(aux); 
+        istringstream(aux)>>cantidad_acc; 
         while (cont<cantidad_acc) {
+            acce = new tAccesorios;
             getline(archivo, aux);
             getline(archivo, nombre);
             getline(archivo,tipo);
@@ -1781,16 +1819,15 @@ void AccesoriosArchivo(const char*b, tAccesoriosPtr &acc){
 
                 if (acc == NULL) {
                     acc = acce;
-                    //actual = ambi;
                 } else {
                     actual->siguiente = acce;
-                    //actual = ambi;
                 }
-                //actual=amb;
+
+
                 actual = acce;
-                //l+=1;
+                cont+=1;
             }
-         cont++;   
+            
         }
 
         archivo.close();
@@ -1810,12 +1847,12 @@ void RazasArchivo(const char*c, tRazaPtr &razas, tAmbientePtr &ambientes){
         string saludstr;
         string planeta;
         tRazaPtr actual = razas;
-        tRazaPtr razs = new tRaza;
+        tRazaPtr razs;
         int cantidad_razas;
         int cont=0; 
         string aux; 
         getline(archivo, aux);
-        cantidad_razas = stoi(aux); 
+        istringstream(aux)>>cantidad_razas;
         while (cont<cantidad_razas) {
             getline(archivo, aux);
             getline(archivo, nombre);
@@ -1823,6 +1860,7 @@ void RazasArchivo(const char*c, tRazaPtr &razas, tAmbientePtr &ambientes){
             getline(archivo, saludstr);
             getline(archivo, planeta);
             if (nombre.size()>2){
+                razs = new tRaza;
                 if(energiastr.size()>8){
                     energiastr=energiastr.erase(0, 8);
                     int energia = stoi(energiastr);
@@ -1853,10 +1891,12 @@ void RazasArchivo(const char*c, tRazaPtr &razas, tAmbientePtr &ambientes){
                 }
                 //actual=amb;
                 actual = razs;
+                cont+=1;
+                
                 //l+=1;
-            }
-         cont++;   
+            }  
         }
+
 
         archivo.close();
         cout<<"Las razas se han cargado con exito"<<endl;
@@ -1889,28 +1929,24 @@ int main(){
     int n;
     string nu;
     string o;
+    int lim=0;
 
     cout << "The Big Red Fox 🦊 presenta:" << endl;
     cout << "     Starz: The gods talk to me     " << endl;
     cout<< " " << endl;
         
-    cout<<"Solo por curiosidad, dime un numero del 1 al 10 ;)"<<endl;
-    getline(cin,nu);
-    istringstream(nu) >> n;
-    while(n>10 or n<1){
-        cout<<"Fui bastante claro con decir un numero entero del 1 al 10, intenta de nuevo..."<<endl;
-        getline(cin,nu);
-        istringstream(nu) >> n;
-    }
-    cout<<""<<endl;
-
-    //AmbientesArchivo("ambientes.inv", ambientes);
-    
-    //RazasArchivo("especies.inv", razas,ambientes);
-    
-    //AccesoriosArchivo("accesorios.inv", accseorios);
     
 
+    AmbientesArchivo("ambiente.inv", ambientes);
+    //MostrarAmbientes(ambientes);
+    
+    RazasArchivo("especies.inv", razas,ambientes);
+    //MostrarRazas(razas);
+    
+    AccesoriosArchivo("accesorios.inv", accseorios);
+    //MostrarAccesorios(accseorios);
+    
+    /*
     tAmbientePtr a4= new tAmbiente;
     a4->nombre="Vulcano";
     a4->siguiente=NULL;
@@ -1928,6 +1964,7 @@ int main(){
     a1->siguiente=a2;
 
     ambientes=a1;
+    
 
     tAccesoriosPtr ac23= new tAccesorios;
     ac23->nombre="Bomba de Pulsos Electromagnéticos";
@@ -2194,93 +2231,196 @@ int main(){
     r1->siguiente=r2;
 
     razas=r1;
-    
-    
-    cout<<"Hace cientos de años no pensabamos que todo acabraia asi..."<<endl;
-    cout<<"La humanidad llego a un punto de quiebre, empezo una guerra contra otras razas y asi nos encontramos ahora"<<endl;
-    cout<<""<<endl;
+    */
+   while(mn != "0"){
+        cout<<"--------------Menu Principal--------------"<<endl;
+        cout << "1.Empezar Juego"<<endl;
+        cout << "2.Creador de datos"<<endl;
+        cout << "3.Eliminar datos"<<endl;
+        cout << "0.Cerrar Juego"<<endl;
+        cout<<"------------------------------------------"<<endl;
+        cout<< "Ingrese la opcion que desee: ";
+        getline(cin,mn);
+        //system("cls");
 
-    //system("pause");
+        if(mn=="1"){
+            //---------------------------------------------Eleccion de Jugadores-------------------------------------------
+            cout<<"Solo por curiosidad, dime un numero del 1 al 10 ;)"<<endl;
+            getline(cin,nu);
+            istringstream(nu) >> n;
+            while(n>10 or n<1){
+                cout<<"Fui bastante claro con decir un numero entero del 1 al 10, intenta de nuevo..."<<endl;
+                getline(cin,nu);
+                istringstream(nu) >> n;
+            }
+            cout<<""<<endl;
+            cout<<"Hace cientos de años no pensabamos que todo acabraia asi..."<<endl;
+            cout<<"La humanidad llego a un punto de quiebre, empezo una guerra contra otras razas y asi nos encontramos ahora"<<endl;
+            cout<<""<<endl;
 
-    cout<<"Ingrese el nombre del J1:"<<endl;
-    getline(cin,j1);
-    cout<<""<<endl;
+            //system("pause");
 
-    cout<<"Ingrese el nombre del J2:"<<endl;
-    getline(cin,j2);
-    cout<<""<<endl;
+            cout<<"Ingrese el nombre del J1:"<<endl;
+            getline(cin,j1);
+            cout<<""<<endl;
 
-    //system("pause");
+            cout<<"Ingrese el nombre del J2:"<<endl;
+            getline(cin,j2);
+            cout<<""<<endl;
 
-    cout<<""<<endl;
-    cout<<"Cuando la humanidad estaba a punto de llegar a su punto mas bajo, aparecio un hombre capaz de dar esperanza:"<<endl;
-    cout<<j1<<endl;
-    cout<<""<<endl;
+            //system("pause");
 
-    cout<<"Pero, ¿podra esta esperanza ganarle al temible "<<j2<<" ?"<<endl;
-    cout<<""<<endl;
+            cout<<""<<endl;
+            cout<<"Cuando la humanidad estaba a punto de llegar a su punto mas bajo, aparecio un hombre capaz de dar esperanza:"<<endl;
+            cout<<j1<<endl;
+            cout<<""<<endl;
 
-    //system("pause");
+            cout<<"Pero, ¿podra esta esperanza ganarle al temible "<<j2<<" ?"<<endl;
+            cout<<""<<endl;
 
-    cout<<""<<endl;
-    cout<<j1<<" confiamos en usted para llevar la batalla que nos llevara a la victoria"<<endl;
-    cout<<"Debe seleccionar con cuidado que soldados llevara a la disputa"<<endl;
-    cout<<""<<endl;
-    PersonajesUsuarios(j1p, razas, j1);
-    cout<<""<<endl;
-    cout<<j1<<" No se olvide del equipamento de los soldados!"<<endl;
-    cout<<""<<endl;
-    AccesoriosUsuarios(j1p, accseorios);
-    cout<<""<<endl;
+            //system("pause");
 
-    //system("pause");
+            cout<<""<<endl;
+            cout<<j1<<" confiamos en usted para llevar la batalla que nos llevara a la victoria"<<endl;
+            cout<<"Debe seleccionar con cuidado que soldados llevara a la disputa"<<endl;
+            cout<<""<<endl;
+            PersonajesUsuarios(j1p, razas, j1);
+            cout<<""<<endl;
+            cout<<j1<<" No se olvide del equipamento de los soldados!"<<endl;
+            cout<<""<<endl;
+            AccesoriosUsuarios(j1p, accseorios);
+            cout<<""<<endl;
 
-    cout<<""<<endl;
-    cout<<j2<<" todas las tropas andromedianas se encuentran bajo su mandato"<<endl;
-    cout<<"Solo ingrese sus nombres y sus razas para que podamos mandarselos"<<endl;
-    cout<<""<<endl;
-    PersonajesUsuarios(j2p, razas, j2);
-    cout<<""<<endl;
-    cout<<j2<<" No se olvide del equipamento de los soldados!"<<endl;
-    cout<<""<<endl;
-    AccesoriosUsuarios(j2p, accseorios);
-    cout<<""<<endl;
+            //system("pause");
 
-    cout<<""<<endl;
-    cout<<"[3 DIAS ANTES DEL DESASTRE]"<<endl;
-    cout<<j1<<" y "<<j2<<" van a dar un discurso para motivar a sus tropas!"<<endl;
-    Lealtad1v1(j1p,j2p,j1,j2);
-    cout<<""<<endl;
-    
-    cout<<""<<endl;
-    cout<<"[EL DIA DEL DESASTRE]"<<endl;
-    lugar=LugarPelea(ambientes,n);
-    cout<<"¡"<<j1<<"!"<<" ¡"<<j1<<"!"<<" nos informan que "<<j2<<" esta invadiendo "<<lugar->nombre<<endl;
-    cout<<"Es nuestro momento de acabar con el"<<endl;
-    cout<<""<<endl;
-    
-    while (j1p!=NULL and j2p!=NULL){
-        peleador1=ElegirPersonaje(j1p,j1);
-        peleador2=ElegirPersonaje(j2p,j2);
-        MochilaDeBatalla(peleador1);
-        MochilaDeBatalla(peleador2);
-        Batalla(peleador1, j1, j1p, peleador2, j2, j2p, turno_i, lugar, razas);
-    }
+            cout<<""<<endl;
+            cout<<j2<<" todas las tropas andromedianas se encuentran bajo su mandato"<<endl;
+            cout<<"Solo ingrese sus nombres y sus razas para que podamos mandarselos"<<endl;
+            cout<<""<<endl;
+            PersonajesUsuarios(j2p, razas, j2);
+            cout<<""<<endl;
+            cout<<j2<<" No se olvide del equipamento de los soldados!"<<endl;
+            cout<<""<<endl;
+            AccesoriosUsuarios(j2p, accseorios);
+            cout<<""<<endl;
 
-    if(j1p!=NULL and j2p!=NULL){
-        cout<<"Ambos bandos han perdido, la batalla fue solo un monton de muertes...incesesarias"<<endl;
-    }
-    else if(j1p!=NULL){
-        cout<<j2<<"¡Es el ganador!"<<endl;
-    }
-    else if(j2p!=NULL){
-        cout<<j1<<"¡Es el ganador!"<<endl;
-    }
-
-    //system("cls");
-    cout<<"¡FIN DEL JUEGO!\nGracias por jugar";
+            cout<<""<<endl;
+            cout<<"[3 DIAS ANTES DEL DESASTRE]"<<endl;
+            cout<<j1<<" y "<<j2<<" van a dar un discurso para motivar a sus tropas!"<<endl;
+            Lealtad1v1(j1p,j2p,j1,j2);
+            cout<<""<<endl;
             
-    
+            cout<<""<<endl;
+            cout<<"[EL DIA DEL DESASTRE]"<<endl;
+            lugar=LugarPelea(ambientes,n);
+            cout<<"¡"<<j1<<"!"<<" ¡"<<j1<<"!"<<" nos informan que "<<j2<<" esta invadiendo "<<lugar->nombre<<endl;
+            cout<<"Es nuestro momento de acabar con el"<<endl;
+            cout<<""<<endl;
+            
+            while (j1p!=NULL and j2p!=NULL){
+                peleador1=ElegirPersonaje(j1p,j1);
+                peleador2=ElegirPersonaje(j2p,j2);
+                MochilaDeBatalla(peleador1);
+                MochilaDeBatalla(peleador2);
+                Batalla(peleador1, j1, j1p, peleador2, j2, j2p, turno_i, lugar, razas);
+            }
+
+            if(j1p!=NULL and j2p!=NULL){
+                cout<<"Ambos bandos han perdido, la batalla fue solo un monton de muertes...incesesarias"<<endl;
+            }
+            else if(j1p!=NULL){
+                cout<<j2<<"¡Es el ganador!"<<endl;
+            }
+            else if(j2p!=NULL){
+                cout<<j1<<"¡Es el ganador!"<<endl;
+            }
+
+            //system("cls");
+            cout<<"¡FIN DEL JUEGO!\nGracias por jugar";
+        
+            mn="0";
+        }    
+
+        if(mn=="2"){
+            while (opc!="0"){
+                cout<<"BIENVENIDO AL MENÚ DE CREACION DE BIG RED FOX 🦊"<<endl;
+                cout<<"Elija que desea crear: "<<endl;
+                cout<<"Para seleccionar la opción marque solamente el digito numerico"<<endl;
+                cout<<"Por ejemplo si quisiera crear un ambiente marque solamente 3"<<endl;
+                cout<<"1.Raza"<<endl;
+                cout<<"2.Personaje"<<endl;
+                cout<<"3.Ambiente"<<endl;
+                cout<<"4.Accesorio"<<endl;
+                cout<<"0. Salir del menu de creacion"<<endl;
+                getline(cin,opc);
+
+                
+                if(opc=="1"){  //Crear Raza
+                    IngresarRaza(razas,lim,ambientes);
+                }
+                if(opc=="2"){ //Crear Personaje
+                    IngresarPerosnaje(personajes,lim,razas);
+                }
+                if(opc=="3"){
+                    IngresarAmbiente(ambientes,lim);
+                }
+                if(opc=="4"){
+                    IngresarAccesorio(accseorios,lim,ambientes);
+                }
+                if(opc=="0"){
+                    cout<<"Regresando al menu"<<endl;
+                }
+                else{
+                    cout<<"La opción no es válida, por favor introduzca una opción valida"<<endl;
+                }
+                
+            }
+            //system("cls");
+            opc="ok";
+        }
+        if(mn=="3"){
+            while(opc!="0"){
+                cout<<"BIENVENIDO AL MENÚ DE ELIMINACION DE BIG RED FOX 🦊"<<endl;
+                cout<<"Para seleccionar la opción marque solamente el digito numerico"<<endl;
+                cout<<"Por ejemplo si quisiera eliminar un ambiente marque solamente 3"<<endl;
+                cout<<"Que desea borrar?"<<endl;
+                cout<<"1.Persoanje"<<endl;
+                cout<<"2.Raza"<<endl;
+                cout<<"3.Ambiente"<<endl;
+                cout<<"4.Accesorio"<<endl;
+                cout<<"0.Salir del menu de elimacion"<<endl;
+                getline(cin,opc);
+
+                if(opc=="1"){ //Eliminar personaje
+                    EliminarPersonaje(personajes,lim);
+                }
+                if(opc=="2"){ //Eliminar Raza
+                    EliminarRaza(razas,lim);
+                }
+                if(opc=="3"){ //Eliminar Ambiente
+                    EliminarAmbiente(ambientes,lim);
+                }
+                if(opc=="4"){ //Eliminar Accesorio
+                    EliminarAccesorio(accseorios,lim);
+                }
+                if(opc=="0"){ //Eliminar Accesorio
+                    cout<<"Regresando al menu"<<endl;
+                }
+                else{
+                    cout<<"La opción no es válida, por favor introduzca una opción valida"<<endl;
+                }
+            }
+            //system("cls");
+            opc="ok";
+        }  
+        else if(mn=="0"){
+            cout<<"Cerrando el juego";
+
+        }
+        else{
+            cout<<"La opción no es válida, por favor ingrese una opción de las anteriores"<<endl; 
+        }
+    }           
     
     DestruirAccesorios(accseorios);
     DestruirPersonajes(personajes);
