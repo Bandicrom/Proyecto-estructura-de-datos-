@@ -2235,8 +2235,8 @@ int main(){
    while(mn != "0"){
         cout<<"--------------Menu Principal--------------"<<endl;
         cout << "1.Empezar Juego"<<endl;
-        cout << "2.Creador de datos"<<endl;
-        cout << "3.Eliminar datos"<<endl;
+        /*cout << "2.Creador de datos"<<endl;
+        cout << "3.Eliminar datos"<<endl;*/
         cout << "0.Cerrar Juego"<<endl;
         cout<<"------------------------------------------"<<endl;
         cout<< "Ingrese la opcion que desee: ";
@@ -2341,7 +2341,7 @@ int main(){
             mn="0";
         }    
 
-        if(mn=="2"){
+        /*if(mn=="2"){
             while (opc!="0"){
                 cout<<"BIENVENIDO AL MENÚ DE CREACION DE BIG RED FOX 🦊"<<endl;
                 cout<<"Elija que desea crear: "<<endl;
@@ -2411,8 +2411,8 @@ int main(){
                 }
             }
             //system("cls");
-            opc="ok";
-        }  
+            opc="ok";*/
+          
         else if(mn=="0"){
             cout<<"Cerrando el juego";
 
@@ -2420,7 +2420,7 @@ int main(){
         else{
             cout<<"La opción no es válida, por favor ingrese una opción de las anteriores"<<endl; 
         }
-    }           
+   }         
     
     DestruirAccesorios(accseorios);
     DestruirPersonajes(personajes);
